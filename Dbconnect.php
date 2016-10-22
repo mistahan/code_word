@@ -2,7 +2,7 @@
 
 	$DBhost = "localhost";
 	$DBuser = "root";
-  	$DBpass = "ashwinash";
+  	$DBpass = "";
  	$DBname = "SeniorProject";
   
    	$DBcon = new mysqli($DBhost,$DBuser,$DBpass,$DBname);
