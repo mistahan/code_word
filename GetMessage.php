@@ -19,32 +19,8 @@
     $decoded_data_array = JWT::decode($token,$secretK,false);
     
     $encodeArray = json_encode($decoded_data_array);
-    echo "data checked";
-    
-    
-    
-    echo $encodeArray;
     
    // $unencodedArray = ['information' => $decoded_data_array];
-    
-    
-    /*
-    
-    $check_target_user  = $DBcon->query("SELECT * FROM users WHERE username='$targetUser'");
-    $messages           = $DBcon->query("SELECT * FROM messages WHERE targetUser='$targetUser' ORDER BY MessageTime ASC");
-    
-    $count=$check_target_user->num_rows;
-    
-    if($count == 0){
-        echo "{'status' : 'error','msg':'User does not exist'}";
-    }else{
-        
-        while ($row=mysqli_fetch_row($messages))
-        {
-            printf ("%s %s %s %s\n",$row[0],$row[1],$row[2],$row[3]);
-        
-        }
-    }*/
     
     $DBcon->close();
 
