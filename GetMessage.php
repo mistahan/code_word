@@ -1,25 +1,34 @@
 <?php
-    require_once 'Dbconnect.php';
-    require_once 'JWT.php';
     
-   /* header("Access-Control-Allow-Origin: *");
+    use \Firebase\JWT\JWT;
+    define('SECRET_KEY','MFswDQYJKoZIhvcNAQEBBQADSgAwRwJARQqcj0UOTTzLoIGv2ljJVrvcz8CeAc/cUgFqo5gXwOo+2VHGvxz35f06GeyL4dYjTmuxquTrfikHNn+5Xc8brwIDAQAB'); /// secret key can be a random string and keep in secret from everyone
+    define('ALGORITHM','HS256');
+    require_once 'Dbconnect.php';
+    require 'JWT.php';
+    
+    header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Headers: Authorization, Origin, X-Requested-With, Content-Type,      Accept");
     header("Content-Type: application/json");
     
     $headers = getallheaders();
     $jsonRecieved = $headers['Authorization'];
-    $token = $jsonRecieved;
+    $pieces = explode(" ", $jsonRecieved);
+    $token = $pieces[1];
     
-    var_dump($jsonRecieved);
+    $secretK = base64_decode(SECRET_KEY);
+    $decoded_data_array = JWT::decode($token,$secretK,false);
     
-    $secretKey = base64_decode(SECRET_KEY);
-    $decoded_data_array = JWT::decode($token,$secretKey);
     $encodeArray = json_encode($decoded_data_array);
-    $unencodedArray = ['information' => $decoded_data_array];*/
+    echo "data checked";
     
     
-    $targetUser = strip_tags($_GET['targetUser']);
-    $targetUser = $DBcon->real_escape_string($targetUser);
+    
+    echo $encodeArray;
+    
+   // $unencodedArray = ['information' => $decoded_data_array];
+    
+    
+    /*
     
     $check_target_user  = $DBcon->query("SELECT * FROM users WHERE username='$targetUser'");
     $messages           = $DBcon->query("SELECT * FROM messages WHERE targetUser='$targetUser' ORDER BY MessageTime ASC");
@@ -35,7 +44,7 @@
             printf ("%s %s %s %s\n",$row[0],$row[1],$row[2],$row[3]);
         
         }
-    }
+    }*/
     
     $DBcon->close();
 

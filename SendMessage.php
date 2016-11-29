@@ -4,23 +4,23 @@
 	//intended for another client
     
     use \Firebase\JWT\JWT;
-    define('SECRET_KEY','your secret key'); /// secret key can be a random string and keep in secret from everyone
+    define('SECRET_KEY','MFswDQYJKoZIhvcNAQEBBQADSgAwRwJARQqcj0UOTTzLoIGv2ljJVrvcz8CeAc/cUgFqo5gXwOo+2VHGvxz35f06GeyL4dYjTmuxquTrfikHNn+5Xc8brwIDAQAB'); /// secret key can be a random string and keep in secret from everyone
     define('ALGORITHM','HS256');
     //use to connect to the database
 	require_once 'Dbconnect.php';
     require 'JWT.php';
     
     
-    header("Access-Control-Allow-Origin: *");
+    /*header("Access-Control-Allow-Origin: *");
     header("Access-Control-Allow-Headers: Authorization, Origin, X-Requested-With, Content-Type,      Accept");
     header("Content-Type: application/json");
     
-    $headers = getallheaders();
-    $jsonRecieved = $headers['Authorization'];
+    $headers = getallheaders();*/
+    $jsonRecieved = strip_tags($_POST['authorization']);
     $token = $jsonRecieved;
     
     $secretKey = base64_decode(SECRET_KEY);
-    $decoded_data_array = JWT::decode($token,$secretKey);
+    $decoded_data_array = JWT::decode($token,$secretKey,true);
     $encodeArray = json_encode($decoded_data_array);
     
     
@@ -63,6 +63,8 @@
             $notBefore  = $issuedAt + 10;  //Adding 10 seconds
             $expire     = $notBefore + 86400; // Adding 60 seconds
             $serverName = 'https://www.codeword.tech'; /// set your domain name
+            
+            $user_row=mysqli_fetch_row($check_from_user);
             
             
             /*
