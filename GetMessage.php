@@ -20,8 +20,6 @@
     
     $encodeArray = json_encode($decoded_data_array);
     
-   // $unencodedArray = ['information' => $decoded_data_array];
-    
     $DBcon->close();
 
     
