@@ -1,7 +1,7 @@
 <?php
 
     use \Firebase\JWT\JWT;
-    define('SECRET_KEY','MFswDQYJKoZIhvcNAQEBBQADSgAwRwJARQqcj0UOTTzLoIGv2ljJVrvcz8CeAc/cUgFqo5gXwOo+2VHGvxz35f06GeyL4dYjTmuxquTrfikHNn+5Xc8brwIDAQAB'); /// secret key can be a random string and keep in secret from everyone
+    define('SECRET_KEY','secret'); /// secret key can be a random string and keep in secret from everyone
     define('ALGORITHM','HS256');
     require_once 'Dbconnect.php';
     require 'JWT.php';
