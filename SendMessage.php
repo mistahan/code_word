@@ -41,16 +41,19 @@
         if($DBcon->query($squery)) {
 
 
-            echo "{'status' : 'success','msg': 'Posted message'}";
+            $response['success'] = true;
+            echo json_encode($response);
 
 
         } else{
 
-            echo "{'status' : 'error','msg': 'Failed to post message'}";
+            $response['success'] = false;
+            echo json_encode($response);
         }
 
     }else{
-        echo "{'status' : 'error'}";
+            $response['success'] = false;
+            echo json_encode($response);
     }
 
 ?>
