@@ -24,10 +24,11 @@
 
     $user = $data->username;
 
-    $messages = $DBcon->query("SELECT * FROM messages WHERE targetUser='$user' ORDER BY MessageTime ASC");
+    $messages = $DBcon->query("SELECT * FROM messages WHERE targetUser='$user' ORDER BY MessageTime DESC");
 
     while ($row=mysqli_fetch_row($messages)) {
-      printf ("%s %s %s %s\n",$row[0],$row[1],$row[2],$row[3]);
+      $space_separated = implode(" ", $row);
+      echo "$space_separated\n";
     }
     $DBcon->close();
 
