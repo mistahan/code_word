@@ -1,5 +1,6 @@
 package zeec.codeword;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -97,13 +98,8 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         //validation ok
 
 
-        progressDialog.setMessage("Registering user...");
-        progressDialog.show();
-
         new RegisterOperation().execute();
 
-
-        progressDialog.dismiss();
 
 
     }
@@ -219,11 +215,9 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                 Log.d("If statement result is:", "true");
 
                 super.onPostExecute(response);
-                Intent intent = new Intent(RegistrationActivity.this,ProfileActivity.class);
+                Intent intent = new Intent(RegistrationActivity.this,LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                progressDialog.show();
                 getApplicationContext().startActivity(intent);
-                progressDialog.dismiss();
 
 
             }

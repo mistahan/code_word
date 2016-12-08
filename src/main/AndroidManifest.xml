@@ -24,7 +24,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".RegistrationActivity" />
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".SendMessageActivity" />
+        <activity android:name=".GetMessagesActivity"></activity>
     </application>
 
 </manifest>

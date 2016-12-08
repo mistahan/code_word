@@ -82,8 +82,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void userLogin(){
-        email = editTextEmail.getText().toString().trim();
-        password = editTextPassword.getText().toString().trim();
+        email = editTextEmail.getText().toString();
+        editTextEmail.requestFocus();
+        InputMethodManager inputManager = (InputMethodManager)getApplicationContext().getSystemService(INPUT_METHOD_SERVICE);
+        inputManager.restartInput(editTextEmail);
+
+        password = editTextPassword.getText().toString();
+        editTextPassword.requestFocus();
+        inputManager.restartInput(editTextPassword);
 
         if(TextUtils.isEmpty(email)){
             //email is empty
@@ -97,11 +103,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
         //validation ok
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editTextEmail.getWindowToken(), 0);
+       // InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+       // imm.hideSoftInputFromWindow(editTextEmail.getWindowToken(), 0);
 
-        email = editTextEmail.getText().toString();
-        password = editTextPassword.getText().toString();
         progressDialog.setMessage("Logging In...");
         progressDialog.show();
 
@@ -144,7 +148,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 String result ="";
 
 
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair,"UTF-8"));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
                 HttpResponse response = httpClient.execute(httpPost);
 
                 BufferedReader rd = new BufferedReader(new InputStreamReader(
@@ -153,6 +157,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 while((line = rd.readLine()) != null){
                     result = result + line;
                 }
+                rd.close();
                 return result;
 
             } catch (UnsupportedEncodingException e) {
@@ -170,6 +175,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
 
+
             if (response.contains("false")){
 
                 Toast.makeText(getApplicationContext(),"Incorrect Email/Password.",Toast.LENGTH_LONG).show();
@@ -180,10 +186,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 super.onPostExecute(response);
                 Intent intent = new Intent(LoginActivity.this,ProfileActivity.class);
                 intent.putExtra("jwt",response);
+                intent.putExtra("email", email);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 progressDialog.show();
                 getApplicationContext().startActivity(intent);
+                finish();
                 progressDialog.dismiss();
+
             }
         }
     }
