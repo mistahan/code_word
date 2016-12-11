@@ -2,7 +2,8 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:fillViewport="false">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/activity_login"
@@ -12,7 +13,7 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="zeec.codeword.ProfileActivity">
+        tools:context="com.example.alexhan.codeword.LoginActivity">
 
 
         <LinearLayout
@@ -48,6 +49,13 @@
                 android:layout_height="match_parent"
                 android:id="@+id/seeMessages"
                 android:clickable="true"/>
+            <Button
+                android:text="Add User"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/addUser"
+                android:clickable="true"/>
+
 
 
         </LinearLayout>

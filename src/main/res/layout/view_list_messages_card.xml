@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<zeec.codeword.MessagesCard xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.alexhan.codeword.MessagesCard
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     android:id="@+id/listMessagesContainer"
     android:layout_width="match_parent"
@@ -55,4 +56,4 @@
 
     </RelativeLayout>
 
-</zeec.codeword.MessagesCard>
+</com.example.alexhan.codeword.MessagesCard>
