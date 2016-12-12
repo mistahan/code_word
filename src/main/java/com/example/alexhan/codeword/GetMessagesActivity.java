@@ -8,17 +8,24 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.spongycastle.util.encoders.Base64;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import static com.example.alexhan.codeword.MessagesCard;
+
+import static com.example.alexhan.codeword.R.id.messagesView;
 
 public class GetMessagesActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -26,6 +33,10 @@ public class GetMessagesActivity extends AppCompatActivity implements View.OnCli
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Button refresh;
+    private HttpEntity entity;
+    private AES aes;
+    private RSA rsa;
+    private String username;
 
     String token;
 
@@ -43,7 +54,11 @@ public class GetMessagesActivity extends AppCompatActivity implements View.OnCli
 
         Bundle bundle = getIntent().getExtras();
         token = bundle.getString("jwt");
+        username = bundle.getString("email");
         refresh.setOnClickListener(this);
+        aes = new AES();
+        rsa = new RSA(username,getApplication());
+
 
     }
 
@@ -66,39 +81,44 @@ public class GetMessagesActivity extends AppCompatActivity implements View.OnCli
             HttpGet httpGet = new HttpGet("https://www.codeword.tech/GetMessage.php");
 
             try {
-                String result ="";
-                httpGet.addHeader("Authorization","Bearer "+token);
+                String result = "";
+                String jsonString = "";
+                httpGet.addHeader("Authorization", "Bearer " + token);
                 HttpResponse response = httpClient.execute(httpGet);
                 Log.d("response code", response.getStatusLine().toString());
 
-                BufferedReader rd = new BufferedReader(new InputStreamReader(
-                        response.getEntity().getContent()));
-
-                String line="";
-                int counter =1;
-                ArrayList<String> messageInfo = new ArrayList<String>();
-                while((line = rd.readLine()) != null){
-                    messageInfo.add(line);
-
-                    if(counter == 4){
-                        Messages m = new Messages(messageInfo.get(0),messageInfo.get(1),messageInfo.get(2),messageInfo.get(3));
-                        messages.add(m);
-                        messageInfo.clear();
-                        counter = 1;
-                    }else{
-                        counter++;
-                    }
+                entity = response.getEntity();
+                if (entity != null) {
+                    jsonString = new BasicResponseHandler().handleResponse(response);
+                    //System.out.println(jsonString);
+                } else {
+                    System.out.println("was null");
                 }
-                rd.close();
-                return result;
+
+                JSONObject obj = new JSONObject(jsonString);
+                    byte[] encryptedMessage = Base64.decode(obj.getString("message"));
+                    byte[] decryptedMessage = aes.decrypt(encryptedMessage, obj.getString("sender"));
+                    String message = new String(decryptedMessage);
+                    String sender = obj.getString("sender");
+                    String to = obj.getString("to");
+                    String time = obj.getString("date");
+                    System.out.println(sender + " said: " + message + " at " + time);
+
+                    Messages m = new Messages(sender, message, to, time);
+                    messages.add(m);
+                    return result;
+
             } catch (UnsupportedEncodingException e) {
                 //do something here
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
             return null;
         }
+
         @Override
         protected void onPostExecute(String response) {
             MessageCardAdapter thisOne = new MessageCardAdapter(getApplicationContext(),messages);

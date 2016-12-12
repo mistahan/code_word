@@ -1,11 +1,14 @@
 package com.example.alexhan.codeword;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.security.Key;
 
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -18,11 +21,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private String response;
     private String email;
     private String jwt;
+    private RSA rsaKeyPair;
+
+    private Key friendPublicKey;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         welcome = (TextView) findViewById(R.id.welcome);
@@ -34,13 +42,23 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Bundle bundle = getIntent().getExtras();
         response = bundle.getString("jwt");
         email = bundle.getString("email");
+        friendPublicKey =  (Key) bundle.get("friendKey");
+
+
+
+        rsaKeyPair = new RSA(email, getApplicationContext());
+        rsaKeyPair.run();
+
 
         jwt = parseString(response);
+
 
 
         sendMessage.setOnClickListener(onClickListener);
         seeMessages.setOnClickListener(onClickListener);
         addUser.setOnClickListener(onClickListener);
+
+
 
 
     }
@@ -62,6 +80,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     Intent intent = new Intent(ProfileActivity.this, SendMessageActivity.class);
                     intent.putExtra("jwt", jwt);
                     intent.putExtra("email", email);
+                    intent.putExtra("friendKey",friendPublicKey);
                     startActivity(intent);
                     break;
 

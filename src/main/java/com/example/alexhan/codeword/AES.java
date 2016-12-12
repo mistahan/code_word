@@ -47,11 +47,6 @@ public class AES {
         keyGen.init(256); // for example
         secretKey = keyGen.generateKey();
         addToContacts(name,secretKey);
-//        iv = new byte[16];
-//        SecureRandom random = new SecureRandom();
-//        random.nextBytes(iv);
-//        ivParameterSpec = new IvParameterSpec(iv);
-        //addToVectors(name,ivParameterSpec.getIV());
     }
 
     public void recoverKey(byte[] decryptedKey) {
@@ -59,6 +54,7 @@ public class AES {
     }
 
     public byte[] encrypt(byte[] plaintext, String contactName) {
+        generateKey(contactName);
         byte[] byteCipherText = new byte[1];
         byte[] c = new byte[1];
         try {
@@ -96,6 +92,7 @@ public class AES {
     }
 
     public byte[] decrypt(byte[] cipherText, String contactName) {
+        generateKey(contactName);
         byte[] plainText = new byte[1];
         try {
 

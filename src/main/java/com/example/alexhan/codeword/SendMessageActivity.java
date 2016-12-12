@@ -21,7 +21,9 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
-public class SendMessageActivity extends AppCompatActivity implements View.OnClickListener{
+public class SendMessageActivity extends AppCompatActivity implements View.OnClickListener,Serializable{
 
     private EditText editTargetUser;
     private EditText editMessage;
@@ -55,6 +57,7 @@ public class SendMessageActivity extends AppCompatActivity implements View.OnCli
     private RSA rsa;
     private Button btn;
     private TextView txtView;
+    private Key friendPublicKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +75,13 @@ public class SendMessageActivity extends AppCompatActivity implements View.OnCli
         Bundle bundle = getIntent().getExtras();
         jwt = bundle.getString("jwt");
         email = bundle.getString("email");
+        friendPublicKey = (Key) bundle.get("friendKey");
         sendMessage.setOnClickListener(this);
 
         Button btn = (Button) findViewById(R.id.button);
         btn.setOnClickListener(this);
 
-
         aes = new AES();
-        rsa = new RSA(email);
     }
 
     public void runTask(){
@@ -125,9 +127,10 @@ public class SendMessageActivity extends AppCompatActivity implements View.OnCli
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost("https://www.codeword.tech/SendMessage.php");
 
-            aes.generateKey(email);
+
             byte[] encMessage = aes.encrypt(params[0].getBytes(),params[1]);
-            String encryptedMessage = Base64.encodeToString(encMessage,Base64.DEFAULT);
+            String encryptedMessage = new String(Base64.encode(encMessage,Base64.DEFAULT));
+
 
             List<NameValuePair> nameValuePair = new ArrayList<>(3);
             nameValuePair.add(new BasicNameValuePair("authorization", jwt));

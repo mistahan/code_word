@@ -6,6 +6,7 @@ package com.example.alexhan.codeword;
 
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,26 +23,29 @@ import com.google.zxing.common.BitMatrix;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
+
+import java.io.IOException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 public class AddUserActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler{
     private ZXingScannerView mScannerView;
     ImageView qrCodeImageview;
-
-    HttpClient httpClient = new DefaultHttpClient();
-    HttpGet httpGet = new HttpGet("https://www.codeword.tech/GetMessage.php");
-
-
     String QRcode;
     String username;
 
+    String friendPublicKey;
 
-    RSA publicKey = null;
+    Key pubKey;
     public final static int WIDTH=500;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,14 +53,34 @@ public class AddUserActivity extends AppCompatActivity implements ZXingScannerVi
         Bundle bundle = getIntent().getExtras();
         username = bundle.getString("email");
 
-        publicKey = new RSA(username);
-
-// create thread to avoid ANR Exception
         Thread thr = new Thread(new Runnable() {
             public void run() {
-// this is the msg which will be encode in QRcode
-                publicKey.run();
-                QRcode ="1234657985165465135743654316851";
+
+            try {
+                String publicKeyFile = username + "_pub.pem";
+                PemFileReader pubFile = new PemFileReader(publicKeyFile, getApplicationContext());
+                byte[] content = pubFile.getPemObject().getContent();
+
+                X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(content);
+
+                Security.addProvider(new BouncyCastleProvider());
+                KeyFactory kf = KeyFactory.getInstance("RSA", "BC");
+
+
+                pubKey = kf.generatePublic(pubKeySpec);
+            }catch(IOException e){
+
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (NoSuchProviderException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+
+
+
+                QRcode = pubKey.toString();
 
 
 
@@ -144,8 +168,6 @@ public class AddUserActivity extends AppCompatActivity implements ZXingScannerVi
     public void handleResult(Result rawResult) {
         // Do something with the result here
 
-        Log.e("handler", rawResult.getText()); // Prints scan results
-        Log.e("handler", rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode)
 
         // show the scanner result into dialog box.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -153,6 +175,12 @@ public class AddUserActivity extends AppCompatActivity implements ZXingScannerVi
         builder.setMessage(rawResult.getText());
         AlertDialog alert1 = builder.create();
         alert1.show();
+
+        friendPublicKey = rawResult.getText();
+
+        Intent intent = new Intent(AddUserActivity.this,ProfileActivity.class);
+        intent.putExtra("friendKey",pubKey);
+        finish();
 
         // If you would like to resume scanning, call this method below:
          mScannerView.resumeCameraPreview(this);

@@ -1,9 +1,13 @@
 package com.example.alexhan.codeword;
 
 
+import android.content.Context;
+import android.util.Log;
+
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -30,21 +34,23 @@ import java.security.interfaces.RSAPublicKey;
  * Created by Cesar-Melchor on 12/7/16.
  */
 
-public class RSA implements Runnable {
+public class RSA implements Runnable,Serializable {
 
     private Cipher cipher;
     private KeyPairGenerator generator;
     private KeyPair pair;
-    private Key pubKey;
+    public Key pubKey;
     private Key privKey;
     private SecureRandom random;
-    private String publicKeyFile;
+    public String publicKeyFile;
     private String privateKeyFile;
+    private Context con;
 
-    public RSA(String username) {
+    public RSA(String username, Context con) {
         Security.addProvider(new BouncyCastleProvider());
         this.publicKeyFile = username + "_pub.pem";
         this.privateKeyFile = username + ".pem";
+        this.con = con;
         cipher = null;
         try {
             cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA256AndMGF1Padding","BC");
@@ -72,7 +78,6 @@ public class RSA implements Runnable {
 
 
         generator.initialize(2048, random);
-
         pair = generator.generateKeyPair();
         pubKey = pair.getPublic();
         privKey = pair.getPrivate();
@@ -80,10 +85,16 @@ public class RSA implements Runnable {
 
 
     public void run() {
+        Log.d("a","checking keys");
         if (!checkForKeys()) {
+            Log.d("a","generating keys");
             generateKeys();
             writeKeys();
+        }else{
+
+            Log.d("a","already have keys");
         }
+
 
     }
 
@@ -129,14 +140,14 @@ public class RSA implements Runnable {
         RSAPrivateKey priv = (RSAPrivateKey) pair.getPrivate();
         RSAPublicKey pub = (RSAPublicKey) pair.getPublic();
 
-        PemFileWriter pemFile = new PemFileWriter(priv, "RSA PRIVATE KEY");
+        PemFileWriter pemFile = new PemFileWriter(priv, "RSA PRIVATE KEY", con);
         try {
             pemFile.write(privateKeyFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        PemFileWriter pubFile = new PemFileWriter(pub, "RSA PUBLIC KEY");
+        PemFileWriter pubFile = new PemFileWriter(pub, "RSA PUBLIC KEY",con);
         try {
             pubFile.write(publicKeyFile);
         } catch (IOException e) {
@@ -147,7 +158,7 @@ public class RSA implements Runnable {
 
     private boolean checkForKeys(){
         try {
-            PemFileReader pubFile = new PemFileReader(publicKeyFile);
+            PemFileReader pubFile = new PemFileReader(publicKeyFile,con);
             byte[] content = pubFile.getPemObject().getContent();
 
             X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(content);
@@ -158,7 +169,7 @@ public class RSA implements Runnable {
 
             pubKey = kf.generatePublic(pubKeySpec);
 
-            PemFileReader privFile = new PemFileReader(privateKeyFile);
+            PemFileReader privFile = new PemFileReader(privateKeyFile,con);
             byte[] content2 = privFile.getPemObject().getContent();
             PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(content2);
             privKey = kf.generatePrivate(privKeySpec);
@@ -180,13 +191,13 @@ public class RSA implements Runnable {
     }
 
 
-    private Key checkForPrivKey(String username){
+    public Key checkForPrivKey(String username){
         String fileName = username+".pem";
         try {
 
             Security.addProvider( new BouncyCastleProvider() );
             KeyFactory kf = KeyFactory.getInstance("RSA","BC");
-            PemFileReader privFile = new PemFileReader(fileName);
+            PemFileReader privFile = new PemFileReader(fileName,con);
             byte[] content2 = privFile.getPemObject().getContent();
             PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(content2);
             Key k = kf.generatePrivate(privKeySpec);
@@ -207,5 +218,6 @@ public class RSA implements Runnable {
         }
 
     }
+    public Key getPubKey(){return pubKey;}
 
 }
